@@ -1,0 +1,15 @@
+*~
+.*~
+.DS_Store
+.Rhistory
+.RData
+test.py
+.work-config.json
+
+
+venv/
+__pycache__/
+.vscode/
+
+
+output
