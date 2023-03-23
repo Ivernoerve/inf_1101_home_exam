@@ -10,7 +10,7 @@ SET_SRC=aatreeset.c
 
 # TODO: Add your index implementation here
 INDEX_SRC=index.c
-PARSER_SRC=reccurent_parser.c
+PARSER_SRC=reccurent_parser_mk2.c
 
 # Directories
 INCLUDE_DIR=include

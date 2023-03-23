@@ -109,17 +109,20 @@ list_t *index_query(index_t *index, list_t *query, char **errmsg){
 	set_t *query_set;
 	set_iter_t *s_iter;
 
-	match_list = list_create(compare_pointers);
-
+	*errmsg = NULL;
 	l_iter = list_createiter(query);
-
-	query_set = search_parser(index -> set_map, l_iter);
- 	
- 	if (query_set == NULL){
+	// mk1 call	
+	//query_set = search_parser(index -> set_map, l_iter);
+	
+	query_set = search_parser(index -> set_map, l_iter, errmsg);
+	
+ 	if (*errmsg != NULL){
  		printf("\nno matches NULL\n");
  		*errmsg = "errormessage !!";
  		return NULL;
  	}
+
+	match_list = list_create(compare_pointers);
  	s_iter = set_createiter(query_set);
  	while (set_hasnext(s_iter)){
 		query_result_t *res = query_result_create((char *) set_next(s_iter), 1);
@@ -127,21 +130,6 @@ list_t *index_query(index_t *index, list_t *query, char **errmsg){
 	}
 
 	list_destroyiter(l_iter);
-	return match_list;
-
-	while (list_hasnext(l_iter)){
-		word = list_next(l_iter);
-		if (map_haskey(index -> set_map, word)){
-			query_set = (set_t *) map_get(index -> set_map, word);
-			s_iter = set_createiter(query_set);
-			while (set_hasnext(s_iter)){
-				query_result_t *res = query_result_create((char *) set_next(s_iter), 1);
-				list_addfirst(match_list, (void *) res);
-			}
-		}
-
-	}
 	set_destroyiter(s_iter);
-	list_destroyiter(l_iter);
 	return match_list;
 }
