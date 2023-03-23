@@ -44,4 +44,3 @@ list_t *index_query(index_t *index, list_t *query, char **errmsg);
 
 #endif
 
-
