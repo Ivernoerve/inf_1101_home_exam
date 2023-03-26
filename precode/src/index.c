@@ -98,12 +98,12 @@ list_t *index_query(index_t *index, list_t *query, char **errmsg){
  	if (*errmsg != NULL){
  		return NULL;
  	}
-
+ 	printf("\nevaluating\n");
 	match_list = list_create(compare_pointers);
 	if (query_set == NULL)
 		return match_list;
 	
-	calculate_score(query_set, query, index->size);
+	//calculate_score(query_set, query, index->size);
 
  	s_iter = set_createiter(query_set);
  	while (set_hasnext(s_iter)){
