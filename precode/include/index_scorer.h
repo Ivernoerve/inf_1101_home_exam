@@ -6,7 +6,8 @@
 #include "common.h"
 
 
-double calculate_score(set_t *query_set, list_t *query, int n_documents);
+double calculate_score(char *path, set_iter_t *query_iter, int n_documents);
 
+set_t *get_clean_query(list_t *query);
 
 #endif

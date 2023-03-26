@@ -78,12 +78,29 @@ void index_addpath(index_t *index, char *path, list_t *words){
 }
 
 
+int compare_matches(void *a, void *b){
+	query_result_t *a_q, *b_q;
+	a_q = (query_result_t * ) a;
+	b_q = (query_result_t * ) b;
+
+
+	if (a_q -> score < b_q -> score){
+      return -1;
+    }
+  else if (a_q -> score > b_q -> score){
+      return 1;
+    }
+  else{
+      return 0;
+    }
+}
+
 list_t *index_query(index_t *index, list_t *query, char **errmsg){
 	list_iter_t *l_iter;
 	list_t *match_list;
 	void *word;
-	set_t *query_set;
-	set_iter_t *s_iter;
+	set_t *query_set, *clean_query;
+	set_iter_t *s_iter, *clean_query_iter;
 
 	*errmsg = NULL;
 	l_iter = list_createiter(query);
@@ -99,19 +116,30 @@ list_t *index_query(index_t *index, list_t *query, char **errmsg){
  		return NULL;
  	}
 
-	match_list = list_create(compare_pointers);
+	match_list = list_create(compare_matches);
 	if (query_set == NULL)
 		return match_list;
 	
-	calculate_score(query_set, query, index->size);
+
+	clean_query = get_clean_query(query);
+	clean_query_iter = set_createiter(clean_query);
+	//calculate_score(query_set, query, index->size);
 
  	s_iter = set_createiter(query_set);
- 	while (set_hasnext(s_iter)){
-		query_result_t *res = query_result_create((char *) set_next(s_iter), 1);
-		list_addfirst(match_list, (void *) res);
-	}
 
-	
+ 	double tf;
+ 	char *path;
+ 	while (set_hasnext(s_iter)){
+ 		path = (char *) set_next(s_iter);
+ 		tf = calculate_score(path, clean_query_iter, index->size);
+		query_result_t *res = query_result_create(path, tf);
+		list_addfirst(match_list, (void *) res);
+
+		set_reset_iter(clean_query_iter);
+	}
+	list_sort(match_list);
+	set_destroy(clean_query);
+	set_destroyiter(clean_query_iter);
 	set_destroyiter(s_iter);
 	return match_list;
 }

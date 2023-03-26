@@ -25,7 +25,6 @@ struct set {
 
 struct set_iter {
     treenode_t *node;
-    treenode_t *start_node;
 };
 
 static treenode_t *newnode(void *elem)
@@ -317,7 +316,6 @@ set_iter_t *set_createiter(set_t *set)
     if (iter == NULL)
         ERROR_PRINT("out of memory");
     iter->node = set->first;
-    iter->start_node = set->first;
     return iter;
 }
 
@@ -343,8 +341,4 @@ void *set_next(set_iter_t *iter)
         iter->node = iter->node->next;
         return elem;
     }
-}
-
-void set_reset_iter(set_iter_t *iter){
-    iter->node = iter->start_node;
 }

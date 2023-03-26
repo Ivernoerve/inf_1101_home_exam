@@ -22,10 +22,10 @@ static set_t *parse_XOR(set_t *prev_set, set_t *next_set, char **errmsg);
 static set_t *parse_brackets(map_t *map, list_iter_t *query_iter, char **errmsg){
     char *word;
     set_t *result_set;
-    *errmsg = "Opening bracket not closed";
     if (list_hasnext(query_iter))
         word = list_next(query_iter);
     else{
+        *errmsg = "Opening bracket not closed";
         return NULL;
     }
 
@@ -34,7 +34,6 @@ static set_t *parse_brackets(map_t *map, list_iter_t *query_iter, char **errmsg)
         return NULL;
     }
 
-
     result_set = NULL;
     if (map_haskey(map, word))
         result_set = map_get(map, word);
@@ -42,9 +41,17 @@ static set_t *parse_brackets(map_t *map, list_iter_t *query_iter, char **errmsg)
 
     result_set = parse_sender(result_set, map, query_iter, errmsg);
 
+
+
+    if (*errmsg == NULL){
+        *errmsg = "Opening bracket not closed";
+        return NULL;
+    }
+
     if (strcmp(*errmsg, "Closing bracket not opened") == 0)
         *errmsg = NULL;
-    return result_set;
+
+    return parse_sender(result_set, map, query_iter, errmsg);
 }
 
 
@@ -59,7 +66,7 @@ static set_t *parse_AND(set_t *prev_set, set_t *next_set, char **errmsg){
 static set_t *parse_ANDNOT(set_t *prev_set, set_t *next_set, char **errmsg){
     if (!(prev_set == NULL || next_set == NULL))
         return set_difference(prev_set, next_set);
-    return NULL;
+    return prev_set;
 }
 
 
@@ -109,7 +116,6 @@ static set_t *parse_sender(set_t *prev_set, map_t *map, list_iter_t *query_iter,
 
     word = (char*)list_next(query_iter);
 
-
     next_set = result_set = NULL;
     if (map_haskey(map, word)){
         next_set = map_get(map, word);
@@ -120,8 +126,8 @@ static set_t *parse_sender(set_t *prev_set, map_t *map, list_iter_t *query_iter,
     }
     else if (strcmp(word, ")") == 0){
         *errmsg = concatenate_strings(2, "Closing bracket used as search token after the operator: ", operator);
-    } 
-        
+    }
+
     if (strcmp(operator, "AND") == 0)
         result_set = parse_AND(prev_set, next_set, errmsg);
     
@@ -139,6 +145,8 @@ static set_t *parse_sender(set_t *prev_set, map_t *map, list_iter_t *query_iter,
         return NULL;
     }
 
+    if (*errmsg != NULL)
+        return result_set;
     return parse_sender(result_set, map, query_iter, errmsg);
 }
 

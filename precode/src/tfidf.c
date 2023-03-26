@@ -5,7 +5,8 @@
 #include <math.h>
 
 
-static set_t *get_clean_query(list_t *query){
+
+set_t *get_clean_query(list_t *query){
 	set_t *clean_query;
 	list_iter_t *l_iter;
 	char *word;
@@ -35,15 +36,19 @@ static set_t *get_clean_query(list_t *query){
 	return clean_query;
 }
 
+
 static double calculate_tf(char *path, char *word){
 	list_t *f_token_words;
 	list_iter_t *l_iter;
 	char *f_word;
-	int n;
+	int n, n_total_words;
 	f_token_words = list_create(compare_strings);
-	tokenize_file(path, f_token_words);
+
+
+	tokenize_file(concatenate_strings(2, "data/cacm/", path) , f_token_words);
 
 	n = 0;
+	n_total_words = list_size(f_token_words);
 	l_iter = list_createiter(f_token_words);
 	while(list_hasnext(l_iter)){
 		f_word = list_next(l_iter);
@@ -53,7 +58,7 @@ static double calculate_tf(char *path, char *word){
 	}
 	list_destroyiter(l_iter);
 	list_destroy(f_token_words);
-	return n / list_size(f_token_words);
+	return (double)n / n_total_words;
 }
 
 static double calculate_idf(set_t *query_set, int n_documents){
@@ -61,40 +66,15 @@ static double calculate_idf(set_t *query_set, int n_documents){
 }
 
 
+double calculate_score(char *path, set_iter_t *query_iter, int n_documents){
+	char *word;
 
+	double tf = 0;
 
+	while (set_hasnext(query_iter)){
+		word = (char *) set_next(query_iter);
+		tf += calculate_tf(path, word);
 
-double calculate_score(set_t *query_set, list_t *query, int n_documents){
-	list_iter_t *l_iter;
-	set_iter_t *clean_query_iter, *path_query_iter;
-	set_t *clean_query;
-
-	int n_doc;
-
-	clean_query = get_clean_query(query);
-	
-	clean_query_iter = set_createiter(clean_query);
-
-	path_query_iter = set_createiter(query_set);
-
-	n_doc = 0;
-	while(set_hasnext(path_query_iter)){
-
-		while(set_hasnext(clean_query_iter)){
-
-		}
 	}
-	set_destroyiter(path_query_iter);
-
-	printf("\n");
-
-	while(set_hasnext(clean_query_iter)){
-		printf("%s --", (char *) set_next(clean_query_iter));
-	}
-	printf("\n---END---\n");
-
-	
-	set_destroyiter(clean_query_iter);
-	set_destroy(clean_query);
-	return 0.0000;
+	return tf;
 }
