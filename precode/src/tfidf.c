@@ -66,24 +66,35 @@ static double calculate_idf(set_t *query_set, int n_documents){
 
 double calculate_score(set_t *query_set, list_t *query, int n_documents){
 	list_iter_t *l_iter;
-	set_iter_t *clean_set_iter;
+	set_iter_t *clean_query_iter, *path_query_iter;
 	set_t *clean_query;
 
-	clean_query = get_clean_query(query);
-	l_iter = list_createiter(query);
-	clean_set_iter = set_createiter(clean_query);
+	int n_doc;
 
-	while(list_hasnext(l_iter)){
-		printf("%s --", (char *) list_next(l_iter));
+	clean_query = get_clean_query(query);
+	
+	clean_query_iter = set_createiter(clean_query);
+
+	path_query_iter = set_createiter(query_set);
+
+	n_doc = 0;
+	while(set_hasnext(path_query_iter)){
+
+		while(set_hasnext(clean_query_iter)){
+
+		}
 	}
+	set_destroyiter(path_query_iter);
 
 	printf("\n");
-	while(set_hasnext(clean_set_iter)){
-		printf("%s --", (char *) set_next(clean_set_iter));
+
+	while(set_hasnext(clean_query_iter)){
+		printf("%s --", (char *) set_next(clean_query_iter));
 	}
 	printf("\n---END---\n");
-	list_destroyiter(l_iter);
-	set_destroyiter(clean_set_iter);
+
+	
+	set_destroyiter(clean_query_iter);
 	set_destroy(clean_query);
 	return 0.0000;
 }
