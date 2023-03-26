@@ -75,6 +75,8 @@ static int is_reserved_word(char *word)
         return 1;
     else if(strcmp(word, "OR") == 0)
         return 1;
+    else if(strcmp(word, "XOR") == 0)
+        return 1;
     else if(strcmp(word, "(") == 0)
         return 1;
     else if(strcmp(word, ")") == 0)

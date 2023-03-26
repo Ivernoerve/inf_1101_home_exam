@@ -3,6 +3,7 @@
 #include "set.h"
 
 #include "parser.h"
+#include "index_scorer.h"
 
 #include <math.h>
 #include <stdlib.h>
@@ -16,10 +17,10 @@ struct index{
 
 
 query_result_t *query_result_create(char *path, double score){
-	query_result_t *q = malloc(sizeof(query_result_t));
-	q -> path = path;
-	q -> score = score;
-	return q;
+	query_result_t *query = malloc(sizeof(query_result_t));
+	query -> path = path;
+	query -> score = score;
+	return query;
 }
 
 
@@ -76,31 +77,6 @@ void index_addpath(index_t *index, char *path, list_t *words){
 	index->size += 1;
 }
 
-double calculate_tf(char *path, char *word){
-	list_t *f_token_words;
-	list_iter_t *l_iter;
-	char *f_word;
-	int n;
-	f_token_words = list_create(compare_strings);
-	tokenize_file(path, f_token_words);
-
-	n = 0;
-	l_iter = list_createiter(f_token_words);
-	while(list_hasnext(l_iter)){
-		f_word = list_next(l_iter);
-		if (strcmp(word, f_word) == 0)
-			n += 1;
-		free(f_word);
-	}
-	list_destroyiter(l_iter);
-	list_destroy(f_token_words);
-	return n / list_size(f_token_words);
-}
-
-double calculate_idf(set_t *query_set, int n_documents){
-	return log(n_documents / (set_size(query_set) + 1));
-}
-
 
 list_t *index_query(index_t *index, list_t *query, char **errmsg){
 	list_iter_t *l_iter;
@@ -115,21 +91,27 @@ list_t *index_query(index_t *index, list_t *query, char **errmsg){
 	//query_set = search_parser(index -> set_map, l_iter);
 	
 	query_set = search_parser(index -> set_map, l_iter, errmsg);
-	
+	list_destroyiter(l_iter);	
+
+
+ 	
  	if (*errmsg != NULL){
- 		printf("\nno matches NULL\n");
- 		*errmsg = "errormessage !!";
  		return NULL;
  	}
 
 	match_list = list_create(compare_pointers);
+	if (query_set == NULL)
+		return match_list;
+	
+	calculate_score(query_set, query, index->size);
+
  	s_iter = set_createiter(query_set);
  	while (set_hasnext(s_iter)){
 		query_result_t *res = query_result_create((char *) set_next(s_iter), 1);
 		list_addfirst(match_list, (void *) res);
 	}
 
-	list_destroyiter(l_iter);
+	
 	set_destroyiter(s_iter);
 	return match_list;
 }

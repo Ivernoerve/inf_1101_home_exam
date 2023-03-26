@@ -11,6 +11,7 @@ SET_SRC=aatreeset.c
 # TODO: Add your index implementation here
 INDEX_SRC=index.c
 PARSER_SRC=reccurent_parser_mk2.c
+INDEX_SCORER_SRC=tfidf.c
 
 # Directories
 INCLUDE_DIR=include
@@ -21,8 +22,8 @@ INDEXER=indexer
 ASSERT_INDEX=assert_index
 
 # Target source files
-INDEXER_SRC=indexer.c common.c httpd.c $(LIST_SRC) $(MAP_SRC) $(SET_SRC) $(INDEX_SRC) $(PARSER_SRC)
-ASSERT_SRC=assert_index.c common.c $(LIST_SRC) $(MAP_SRC) $(SET_SRC) $(INDEX_SRC) $(PARSER_SRC)
+INDEXER_SRC=indexer.c common.c httpd.c $(LIST_SRC) $(MAP_SRC) $(SET_SRC) $(INDEX_SRC) $(PARSER_SRC) $(INDEX_SCORER_SRC)
+ASSERT_SRC=assert_index.c common.c $(LIST_SRC) $(MAP_SRC) $(SET_SRC) $(INDEX_SRC) $(PARSER_SRC) $(INDEX_SCORER_SRC)
 
 # Prefix the files with the src folder
 INDEXER_SRC := $(patsubst %.c, $(SRC_DIR)/%.c, $(INDEXER_SRC))
