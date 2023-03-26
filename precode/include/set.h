@@ -92,4 +92,9 @@ int set_hasnext(set_iter_t *iter);
  */
 void *set_next(set_iter_t *iter);
 
+/*
+ *Resets the iterator to point at the initial node of the set.
+*/
+void *set_reset_iter(set_iter_t *iter);
+
 #endif
