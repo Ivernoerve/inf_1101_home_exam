@@ -237,6 +237,7 @@ static listnode_t *mergesort_(listnode_t *head, cmpfunc_t cmpfunc)
     }
 }
 
+
 void list_sort(list_t *list)
 {
     if (list->head != NULL) {
@@ -254,6 +255,7 @@ void list_sort(list_t *list)
         list->tail = prev;
     }
 }
+
 
 
 list_iter_t *list_createiter(list_t *list)
@@ -290,4 +292,103 @@ void *list_next(list_iter_t *iter)
 	    return elem;
     }
 }
+
+
+/*
+ * ---------------------------------------------------------------------------------
+ * Below follows implementations added by the student to extend the given ADT
+ * ---------------------------------------------------------------------------------
+*/
+
+
+
+/*
+ *This implementation is a small alteration of the given 
+ * merge function given in the precode
+ *
+ * The same functionality as the function given in the precode. 
+ * However it sorts in a descending order 
+ */
+static listnode_t *merge_desc(listnode_t *a, listnode_t *b, cmpfunc_t cmpfunc)
+{
+	listnode_t *head, *tail;
+	
+	/* Pick the largest head node */
+	if (cmpfunc(a->elem, b->elem) > 0) {
+		head = tail = a;
+		a = a->next;
+	}
+	else {
+		head = tail = b;
+		b = b->next;
+	}
+	/* Now repeatedly pick the largest head node */
+	while (a != NULL && b != NULL) {
+		if (cmpfunc(a->elem, b->elem) > 0) {
+			tail->next = a;
+			tail = a;
+			a = a->next;
+		}
+		else {
+			tail->next = b;
+			tail = b;
+			b = b->next;
+		}
+	}
+	/* Append the remaining non-empty list (if any) */
+	if (b != NULL) {
+		tail->next = b;
+	}
+	else {
+		tail->next = a;
+	}
+	return head;
+}
+
+/*
+ *This implementation is a small alteration of the given 
+ * mergesort_ function given in the precode
+ *
+ * The same functionality as the function given in the precode. 
+ * However the recursive call is different.
+ */
+static listnode_t *mergesort_desc(listnode_t *head, cmpfunc_t cmpfunc)
+{
+    if (head->next == NULL) {
+        return head;
+    }
+    else {
+        listnode_t *half = splitlist(head);
+        head = mergesort_desc(head, cmpfunc);
+        half = mergesort_desc(half, cmpfunc);
+        return merge_desc(head, half, cmpfunc);
+    }
+}
+
+/*
+ *This implementation is a small alteration of the given 
+ * list_sort function given in the precode
+ *
+ * The same functionality as the function given in the precode. 
+ * However it sorts in a descending order 
+ */
+void list_sort_descending(list_t *list)
+{
+    if (list->head != NULL) {
+        listnode_t *prev, *n;
+    
+        /* Recursively sort the list */
+        list->head = mergesort_desc(list->head, list->cmpfunc);
+    
+        /* Fix the tail and prev links */
+        prev = NULL;
+        for (n = list->head; n != NULL; n = n->next) {
+            n->prev = prev;
+            prev = n;
+        }
+        list->tail = prev;
+    }
+}
+
+
 

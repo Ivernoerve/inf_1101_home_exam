@@ -92,6 +92,17 @@ int set_hasnext(set_iter_t *iter);
  */
 void *set_next(set_iter_t *iter);
 
+
+
+
+/*
+ * ---------------------------------------------------------------------------------
+ * Below follows implementations added by the student to solve the exam more smooth.
+ * ---------------------------------------------------------------------------------
+*/
+
+
+
 /*
  *Resets the iterator to point at the initial node of the set.
 */

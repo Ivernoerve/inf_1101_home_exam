@@ -137,7 +137,7 @@ list_t *index_query(index_t *index, list_t *query, char **errmsg){
 
 		set_reset_iter(clean_query_iter);
 	}
-	list_sort(match_list);
+	list_sort_descending(match_list);
 	set_destroy(clean_query);
 	set_destroyiter(clean_query_iter);
 	set_destroyiter(s_iter);

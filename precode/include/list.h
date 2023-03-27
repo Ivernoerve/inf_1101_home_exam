@@ -93,4 +93,18 @@ int list_hasnext(list_iter_t *iter);
  */
 void *list_next(list_iter_t *iter);
 
+/*
+ * ---------------------------------------------------------------------------------
+ * Below follows implementations added by the student to extend the given ADT
+ * ---------------------------------------------------------------------------------
+*/
+
+/*
+ * Sorts the elements of the given list, using the comparison function
+ * of the list to determine the ordering of the elements.
+ * The list is sorted in descending order.
+ */
+void list_sort_descending(list_t *list);
+
+
 #endif
