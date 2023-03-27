@@ -61,20 +61,26 @@ static double calculate_tf(char *path, char *word){
 	return (double)n / n_total_words;
 }
 
-static double calculate_idf(set_t *query_set, int n_documents){
-	return log(n_documents / (set_size(query_set) + 1));
+static double calculate_idf(int n_doc_occ, int n_documents){
+	if (n_doc_occ > 0)
+		return (double) n_documents / (n_doc_occ);
+	return 0;
 }
 
 
-double calculate_score(char *path, set_iter_t *query_iter, int n_documents){
+double calculate_score(char *path, set_iter_t *query_iter, list_iter_t *word_doc_occ, int n_total_documents){
 	char *word;
+	int *word_occ;
 
 	double tf = 0;
 
 	while (set_hasnext(query_iter)){
 		word = (char *) set_next(query_iter);
-		tf += calculate_tf(path, word);
+		word_occ = (int *) list_next(word_doc_occ);
+		tf += calculate_tf(path, word) * calculate_idf(*word_occ, n_total_documents);
 
-	}
+		printf("\n%s, tf: %f, idf: %f\n", path, calculate_tf(path, word), calculate_idf(*word_occ, n_total_documents));
+	}	
+
 	return tf;
 }

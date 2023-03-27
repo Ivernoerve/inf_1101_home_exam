@@ -100,11 +100,9 @@ void *list_next(list_iter_t *iter);
 */
 
 /*
- * Sorts the elements of the given list, using the comparison function
- * of the list to determine the ordering of the elements.
- * The list is sorted in descending order.
- */
-void list_sort_descending(list_t *list);
+ *Resets the iterator to point at the initial node of the set.
+*/
+void list_reset_iter(list_iter_t *iter);
 
 
 #endif

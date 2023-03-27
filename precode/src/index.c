@@ -78,39 +78,56 @@ void index_addpath(index_t *index, char *path, list_t *words){
 }
 
 
-int compare_matches(void *a, void *b){
+
+/*
+ * Compare set up in reverse to allow for 
+*/ 
+static int compare_matches(void *a, void *b){
 	query_result_t *a_q, *b_q;
 	a_q = (query_result_t * ) a;
 	b_q = (query_result_t * ) b;
 
 
 	if (a_q -> score < b_q -> score){
-      return -1;
+      return 1;
     }
   else if (a_q -> score > b_q -> score){
-      return 1;
+      return -1;
     }
   else{
       return 0;
     }
 }
 
+
+
+static list_t* get_word_document_occurencies(set_iter_t *query_iter, index_t *index){
+	list_t *word_document_occurencies;
+	int *n_occurences;
+
+	word_document_occurencies = list_create(compare_pointers);
+
+	while (set_hasnext(query_iter)){
+		n_occurences = malloc(sizeof(int));
+		*n_occurences = set_size(map_get(index->set_map, set_next(query_iter)));
+		list_addlast(word_document_occurencies, (void *) n_occurences);
+	}
+
+	return word_document_occurencies;
+}
+
+
 list_t *index_query(index_t *index, list_t *query, char **errmsg){
-	list_iter_t *l_iter;
-	list_t *match_list;
+	list_iter_t *l_iter, *word_doc_occ_iter;
+	list_t *match_list, *word_doc_occ;
 	void *word;
 	set_t *query_set, *clean_query;
 	set_iter_t *s_iter, *clean_query_iter;
 
 	*errmsg = NULL;
 	l_iter = list_createiter(query);
-	// mk1 call	
-	//query_set = search_parser(index -> set_map, l_iter);
-	
 	query_set = search_parser(index -> set_map, l_iter, errmsg);
 	list_destroyiter(l_iter);	
-
-
  	
  	if (*errmsg != NULL){
  		return NULL;
@@ -123,7 +140,11 @@ list_t *index_query(index_t *index, list_t *query, char **errmsg){
 
 	clean_query = get_clean_query(query);
 	clean_query_iter = set_createiter(clean_query);
-	//calculate_score(query_set, query, index->size);
+
+	word_doc_occ = get_word_document_occurencies(clean_query_iter, index);
+	word_doc_occ_iter = list_createiter(word_doc_occ);
+	set_reset_iter(clean_query_iter);
+	
 
  	s_iter = set_createiter(query_set);
 
@@ -131,15 +152,25 @@ list_t *index_query(index_t *index, list_t *query, char **errmsg){
  	char *path;
  	while (set_hasnext(s_iter)){
  		path = (char *) set_next(s_iter);
- 		tf = calculate_score(path, clean_query_iter, index->size);
+ 		tf = calculate_score(path, clean_query_iter, word_doc_occ_iter, index->size);
 		query_result_t *res = query_result_create(path, tf);
 		list_addfirst(match_list, (void *) res);
 
 		set_reset_iter(clean_query_iter);
+		list_reset_iter(word_doc_occ_iter);
 	}
-	list_sort_descending(match_list);
+	list_sort(match_list);
+
 	set_destroy(clean_query);
 	set_destroyiter(clean_query_iter);
 	set_destroyiter(s_iter);
+
+
+	while (list_hasnext(word_doc_occ_iter))
+		free(list_next(word_doc_occ_iter));
+
+	list_destroy(word_doc_occ);
+	list_destroyiter(word_doc_occ_iter);
+	printf("\n-------------\n");
 	return match_list;
 }
